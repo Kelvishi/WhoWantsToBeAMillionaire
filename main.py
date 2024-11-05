@@ -55,7 +55,7 @@ questions = [
 ]
 
 # Prize structure for each question
-prizes = [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000]
+prizes = [100, 200, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000]
 lifelines_used = {"50-50": False, "phone a friend": False, "ask the audience": False}
 
 # Helper function to display options
@@ -105,31 +105,38 @@ for i, question_data in enumerate(questions):
     print(question_data["question"])
     display_options(question_data["options"])
 
-    if any(not used for used in lifelines_used.values()):
-        use_lifeline = input("Do you want to use a lifeline? (yes/no): ").lower()
-        if use_lifeline == "yes":
-            print("Available lifelines:")
-            lifeline_map = {"1": "50-50", "2": "phone a friend", "3": "ask the audience"}
-            for key, name in lifeline_map.items():
-                if not lifelines_used[name]:
-                    print(f"{key}. {name}")
+    # Offer the option to back out
+    back_out = input(f"Do you want to answer the question, use a lifeline, or back out with ${prizes[i-1] if i > 0 else 0}? (answer/lifeline/back out): ").lower()
+    
+    if back_out == "back out":
+        print(f"Congratulations! You chose to back out and take home ${prizes[i-1] if i > 0 else 0}.")
+        break
 
-            lifeline_choice = input("Choose a lifeline (1, 2, 3 or name): ").lower()
-            
-            if (lifeline_choice == "1" or lifeline_choice == "50-50") and not lifelines_used["50-50"]:
-                fifty_fifty(question_data)
-                lifelines_used["50-50"] = True
-            elif (lifeline_choice == "2" or lifeline_choice == "phone a friend") and not lifelines_used["phone a friend"]:
-                phone_a_friend(question_data["answer"])
-                lifelines_used["phone a friend"] = True
-            elif (lifeline_choice == "3" or lifeline_choice == "ask the audience") and not lifelines_used["ask the audience"]:
-                ask_the_audience(question_data)
-                lifelines_used["ask the audience"] = True
-            else:
-                print("Invalid lifeline or already used. Moving on without lifeline.")
+    elif back_out == "lifeline" and any(not used for used in lifelines_used.values()):
+        print("Available lifelines:")
+        lifeline_map = {"1": "50-50", "2": "phone a friend", "3": "ask the audience"}
+        for key, name in lifeline_map.items():
+            if not lifelines_used[name]:
+                print(f"{key}. {name}")
 
+        lifeline_choice = input("Choose a lifeline (1, 2, 3 or name): ").lower()
+        
+        if (lifeline_choice == "1" or lifeline_choice == "50-50") and not lifelines_used["50-50"]:
+            fifty_fifty(question_data)
+            lifelines_used["50-50"] = True
+        elif (lifeline_choice == "2" or lifeline_choice == "phone a friend") and not lifelines_used["phone a friend"]:
+            phone_a_friend(question_data["answer"])
+            lifelines_used["phone a friend"] = True
+        elif (lifeline_choice == "3" or lifeline_choice == "ask the audience") and not lifelines_used["ask the audience"]:
+            ask_the_audience(question_data)
+            lifelines_used["ask the audience"] = True
+        else:
+            print("Invalid lifeline or already used. Moving on without lifeline.")
+    
+    # Get user's answer
     answer = input("Enter your answer (A, B, C, or D): ").upper()
     
+    # Check answer
     if answer == question_data["answer"]:
         print(f"Correct! You've won ${prizes[i]}!\n")
     else:
