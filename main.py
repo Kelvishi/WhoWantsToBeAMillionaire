@@ -27,11 +27,36 @@ questions = [
         "options": ["A. Japan", "B. China", "C. Thailand", "D. India"],
         "answer": "A"
     },
+    {
+        "question": "What is the smallest planet in our solar system?",
+        "options": ["A. Venus", "B. Mars", "C. Mercury", "D. Neptune"],
+        "answer": "C"
+    },
+    {
+        "question": "Which is the longest river in the world?",
+        "options": ["A. Amazon", "B. Nile", "C. Yangtze", "D. Mississippi"],
+        "answer": "B"
+    },
+    {
+        "question": "What year did the Titanic sink?",
+        "options": ["A. 1905", "B. 1912", "C. 1920", "D. 1930"],
+        "answer": "B"
+    },
+    {
+        "question": "What is the largest organ in the human body?",
+        "options": ["A. Brain", "B. Liver", "C. Skin", "D. Lungs"],
+        "answer": "C"
+    },
+    {
+        "question": "Who painted the Mona Lisa?",
+        "options": ["A. Vincent van Gogh", "B. Pablo Picasso", "C. Claude Monet", "D. Leonardo da Vinci"],
+        "answer": "D"
+    }
 ]
 
 # Prize structure for each question
-prizes = [100, 200, 500, 1000, 5000]
-lifelines_used = {"1. 50-50": False, "2. phone a friend": False, "3. ask the audience": False}
+prizes = [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000]
+lifelines_used = {"50-50": False, "phone a friend": False, "ask the audience": False}
 
 # Helper function to display options
 def display_options(options):
@@ -51,10 +76,28 @@ def fifty_fifty(question_data):
 def phone_a_friend(answer):
     print(f"Your friend suggests the answer might be '{answer}'.")
 
-def ask_the_audience(answer):
+def ask_the_audience(question_data):
+    correct_answer = question_data["answer"]
+    correct_percentage = random.randint(60, 80)
+    remaining_percentage = 100 - correct_percentage
+    other_percentages = random.sample(range(0, remaining_percentage), 3)
+    other_percentages.sort()
+    
+    percentages = [other_percentages[0],
+                   other_percentages[1] - other_percentages[0],
+                   other_percentages[2] - other_percentages[1],
+                   remaining_percentage - other_percentages[2]]
+    
+    options_with_percentages = []
+    for i, option in enumerate(question_data["options"]):
+        if option.startswith(correct_answer):
+            options_with_percentages.append((option, correct_percentage))
+        else:
+            options_with_percentages.append((option, percentages.pop(0)))
+    
     print("Audience Poll:")
-    print(f"  75% think the answer is '{answer}'")
-    print("  15% for another option and 10% divided among the remaining options.")
+    for option, percentage in options_with_percentages:
+        print(f"  {option}: {percentage}%")
 
 # Main quiz loop
 for i, question_data in enumerate(questions):
@@ -62,32 +105,31 @@ for i, question_data in enumerate(questions):
     print(question_data["question"])
     display_options(question_data["options"])
 
-    # Ask if the player wants to use a lifeline
     if any(not used for used in lifelines_used.values()):
         use_lifeline = input("Do you want to use a lifeline? (yes/no): ").lower()
         if use_lifeline == "yes":
             print("Available lifelines:")
-            for name, used in lifelines_used.items():
-                if not used:
-                    print(f"{name}")
-            lifeline_choice = input("Choose a lifeline: ").lower()
+            lifeline_map = {"1": "50-50", "2": "phone a friend", "3": "ask the audience"}
+            for key, name in lifeline_map.items():
+                if not lifelines_used[name]:
+                    print(f"{key}. {name}")
+
+            lifeline_choice = input("Choose a lifeline (1, 2, 3 or name): ").lower()
             
-            if lifeline_choice == "50-50" or 1 and not lifelines_used["1. 50-50"]:
+            if (lifeline_choice == "1" or lifeline_choice == "50-50") and not lifelines_used["50-50"]:
                 fifty_fifty(question_data)
-                lifelines_used["1. 50-50"] = True
-            elif lifeline_choice == "phone a friend" or 2 and not lifelines_used["2. phone a friend"]:
+                lifelines_used["50-50"] = True
+            elif (lifeline_choice == "2" or lifeline_choice == "phone a friend") and not lifelines_used["phone a friend"]:
                 phone_a_friend(question_data["answer"])
-                lifelines_used["2. phone a friend"] = True
-            elif lifeline_choice == "ask the audience" or 3 and not lifelines_used["3. ask the audience"]:
-                ask_the_audience(question_data["answer"])
-                lifelines_used["3. ask the audience"] = True
+                lifelines_used["phone a friend"] = True
+            elif (lifeline_choice == "3" or lifeline_choice == "ask the audience") and not lifelines_used["ask the audience"]:
+                ask_the_audience(question_data)
+                lifelines_used["ask the audience"] = True
             else:
                 print("Invalid lifeline or already used. Moving on without lifeline.")
 
-    # Get user's answer
     answer = input("Enter your answer (A, B, C, or D): ").upper()
     
-    # Check answer
     if answer == question_data["answer"]:
         print(f"Correct! You've won ${prizes[i]}!\n")
     else:
