@@ -106,13 +106,13 @@ for i, question_data in enumerate(questions):
     display_options(question_data["options"])
 
     # Offer the option to back out
-    back_out = input(f"Do you want to answer the question, use a lifeline, or back out with ${prizes[i-1] if i > 0 else 0}? (answer/lifeline/back out): ").lower()
+    options = input(f"Do you want to answer the question, use a lifeline, or back out with ${prizes[i-1] if i > 0 else 0}? (answer/lifeline/back out): ").lower()
     
-    if back_out == "back out":
+    if options == "back out":
         print(f"Congratulations! You chose to back out and take home ${prizes[i-1] if i > 0 else 0}.")
         break
 
-    elif back_out == "lifeline" and any(not used for used in lifelines_used.values()):
+    elif options == "lifeline" and any(not used for used in lifelines_used.values()):
         print("Available lifelines:")
         lifeline_map = {"1": "50-50", "2": "phone a friend", "3": "ask the audience"}
         for key, name in lifeline_map.items():
